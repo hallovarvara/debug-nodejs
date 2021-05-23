@@ -1,29 +1,44 @@
 const jwt = require('jsonwebtoken');
-var User = require('../db').import('../models/user');
+const User = require('../db').import('../models/user');
+const { handleError } = require('../utils/handleError');
 
 module.exports = function (req, res, next) {
-    if (req.method == 'OPTIONS') {
-        next();   // allowing options as a method for request
-    } else {
-        var sessionToken = req.headers.authorization;
-        console.log(sessionToken);
-        if (!sessionToken) return res.status(403).send({ auth: false, message: "No token provided." });
-        else {
-            jwt.verify(sessionToken, 'lets_play_sum_games_man', (err, decoded) => {
-                if (decoded) {
-                    User.findOne({ where: { id: decoded.id } }).then(user => {
-                        req.user = user;
-                        console.log(`user: ${user}`)
-                        next()
-                    },
-                        function () {
-                            res.status(401).send({ error: "not authorized" });
-                        })
+  if (req.method === 'OPTIONS') {
+    next();
+  } else {
+    const sessionToken = req.headers.authorization;
 
-                } else {
-                    res.status(400).send({ error: "not authorized" })
-                }
+    if (!sessionToken) {
+      handleError(res, 403, {
+        auth: false,
+        message: 'Access denied. Please, provide correct token.',
+      });
+    } else {
+      jwt.verify(sessionToken, 'lets_play_sum_games_man', (err, decoded) => {
+        if (decoded) {
+          User.findOne({
+            where: {
+              id: decoded.id,
+            },
+          })
+            .then((user) => {
+              req.user = user;
+              next();
+            })
+            .catch((err) => {
+              handleError(res, 401, {
+                message:
+                  'There is problem with authorization. Please, re-authorize.',
+                error: err,
+              });
             });
+        } else {
+          handleError(res, 400, {
+            message: 'Something went wrong. Please, try again.',
+            error: err,
+          });
         }
+      });
     }
-}
+  }
+};

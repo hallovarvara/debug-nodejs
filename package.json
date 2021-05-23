@@ -1,6 +1,11 @@
 {
   "name": "brokenapp",
   "version": "1.0.0",
+  "description": "Debugging Node.js on RS School course Node 2020q1",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:hallovarvara/debug-nodejs.git"
+  },
   "main": "app.js",
   "license": "MIT",
   "scripts": {
@@ -13,6 +18,7 @@
     "express": "^4.16.4",
     "jsonwebtoken": "^8.3.0",
     "pg": "^8.6.0",
+    "prettier": "^2.3.0",
     "sequelize": "^4.41.0"
   },
   "devDependencies": {
